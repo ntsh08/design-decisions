@@ -64,11 +64,19 @@ Claude finishes the task first, then asks in one line at the end of its reply:
 
 ### Claude Code (CLI or the desktop app's Code tab)
 
+Install it once per machine, for all your projects:
+
+```bash
+npx skills add ntsh08/design-decisions -g -a claude-code
+```
+
+(Without `-g` it installs into the current project only.) Or, without npx:
+
 ```bash
 git clone https://github.com/ntsh08/design-decisions ~/.claude/skills/design-decisions
 ```
 
-That's enough to use it. In a project, say "set up a decision log" and Claude creates `decisions/`.
+Then, in each project, say "set up a decision log" once and Claude creates `decisions/`, shares the skill with the repo, and pushes.
 
 ### Optional: set up every project automatically
 
@@ -112,6 +120,7 @@ Because the hook copies the skill into each project, **anyone who clones the rep
 
 ## Updating
 
+- **Installed with `npx skills add -g`:** run `npx skills update -g`.
 - **Installed with `git clone`:** run `git pull` inside `~/.claude/skills/design-decisions`.
 - **Copy inside a project:** if you also use the hook, it refreshes the project's copy automatically when your installed version is newer, and teammates get it on their next pull. Otherwise rerun `bin/setup.sh <folder>` from the newer copy.
 - **If someone has it installed globally,** Claude Code prefers that copy over the one in the project. Both work; the global one decides the rules. Each entry records the skill version that wrote it (`Skill version:`), so mixed versions stay readable.
