@@ -1,6 +1,8 @@
 ---
 name: design-decisions
 description: Keep a shared log of UX/UI design decisions in a decisions/ folder so the next designer knows why things are the way they are. Use when the project has a decisions/ folder, when the user makes or reverses a design decision (flow, information architecture, naming, visual rule, interaction, content, removing a feature), asks "why is it like this?", hands a project over, or says "log this". Proposes entries and asks when unsure; never invents the reasoning.
+metadata:
+  version: "1.0.0"
 ---
 
 # Design decisions
@@ -19,15 +21,17 @@ Each project keeps its own log in `decisions/` at the project root (next to its 
 
 ## Setup
 
-A SessionStart hook (`bin/setup.sh`) sets this up automatically when a session starts in a project's git repo: it creates `decisions/`, copies this skill into `.claude/skills/design-decisions/` so teammates' Claude gets it on clone, adds a pointer line to `CLAUDE.md`, commits, and pushes. It also pulls teammates' new decisions at every session start.
+`bin/setup.sh` does the whole setup: it creates `decisions/` with an index named after the project, copies this skill into the project's `.claude/skills/design-decisions/` (so teammates' Claude gets it on clone, even without installing it), adds a pointer line to `CLAUDE.md`, commits, and pushes. If the project's copy of the skill is older than this one, it refreshes it.
 
-If `decisions/` is missing anyway (no hook on this machine), set it up the same way when you start design work in the project:
+Run it when the user asks to set up a log, or when you start design work in a project that has no `decisions/` folder:
 
-1. Create `decisions/README.md` from `templates/index.md`, with the project's name in the title.
-2. Create `decisions/assets/` for before/after screenshots.
-3. Commit `decisions: set up log` and push.
+```
+bin/setup.sh "$(git rev-parse --show-toplevel)"
+```
 
-A project opts out by containing a `.no-decisions` file.
+Use the script's absolute path inside this skill's folder. If the project isn't a git repo, create `decisions/README.md` (from `templates/index.md`) and `decisions/assets/` by hand and tell the user it isn't shared yet.
+
+An optional SessionStart hook can run the same script at the start of every session, which also pulls teammates' new decisions. A project opts out by containing a `.no-decisions` file.
 
 ## Before you work
 
@@ -87,7 +91,7 @@ Don't interrupt the work. Finish the task, then add **one** short block at the e
 ## Writing an entry
 
 1. File name: `decisions/YYYY-MM-DD-short-slug.md`. Use dates, not running numbers, so two people never pick the same name.
-2. Fill in `templates/entry.md`.
+2. Fill in `templates/entry.md`. Set `Skill version` to the `version` in this skill's frontmatter, so a later reader can tell which rules wrote the entry.
 3. **Never invent the why or the evidence.** Use only what the person said. If it's missing, ask once. If they don't answer, write `Not stated`.
 4. **Decided by** is a real person's name (from `git config user.name` or ask). If an agent proposed it and a person approved it, write the person.
 5. Show the draft. Write the file only after a yes.

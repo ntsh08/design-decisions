@@ -2,6 +2,7 @@
 
 Status: Active          Type: <Flow | IA | Terminology | Visual | Interaction | Content | Scope>
 Date: YYYY-MM-DD        Decided by: <name>
+Skill version: <x.y.z>
 Screens: <screens affected>
 Link: <prototype / Figma / commit>
 Supersedes: <old file, or none>

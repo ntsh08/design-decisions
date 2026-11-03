@@ -110,6 +110,12 @@ Zip this folder and upload it under **Settings → Capabilities → Skills**. Th
 
 Because the hook copies the skill into each project, **anyone who clones the repo gets it.** Their Claude Code reads the same log and follows the same rules, with no install needed. Entries are named by date (`2026-03-12-one-saved-list.md`), so two people never pick the same file name.
 
+## Updating
+
+- **Installed with `git clone`:** run `git pull` inside `~/.claude/skills/design-decisions`.
+- **Copy inside a project:** if you also use the hook, it refreshes the project's copy automatically when your installed version is newer, and teammates get it on their next pull. Otherwise rerun `bin/setup.sh <folder>` from the newer copy.
+- **If someone has it installed globally,** Claude Code prefers that copy over the one in the project. Both work; the global one decides the rules. Each entry records the skill version that wrote it (`Skill version:`), so mixed versions stay readable.
+
 ## Credits
 
 Built on the idea of [Architecture Decision Records](https://adr.github.io/) and the [design-log methodology](https://github.com/yoavaa/design-log-methodology). Inspired by [design-log](https://www.skills.sh/denysdovhan/agents/design-log), which does this for engineering decisions; this skill adapts it for product design and designer handoff.

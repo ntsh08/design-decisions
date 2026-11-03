@@ -1,6 +1,6 @@
 #!/bin/bash
 # Sets up a design decision log in the current git project and keeps it synced.
-# Runs from a Claude Code SessionStart hook; safe to run on every session.
+# Runs from a Claude Code SessionStart hook or by hand; safe to run repeatedly.
 #
 # Usage: setup.sh <folder>[:<folder>...]
 # Only repos inside the given folders are touched (or DECISIONS_ROOTS if no
@@ -22,6 +22,8 @@ done
 [ -e "$root/.no-decisions" ] && exit 0
 cd "$root" || exit 0
 
+DEST=.claude/skills/design-decisions
+
 has_upstream() { git rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1; }
 
 say() {
@@ -32,26 +34,53 @@ say() {
   fi
 }
 
+skill_version() { sed -n 's/^ *version: *"*\([0-9][0-9.]*\)"*.*/\1/p' "$1/SKILL.md" 2>/dev/null | head -1; }
+
+# true if version $1 is newer than $2
+newer() { [ "$1" != "$2" ] && [ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | tail -1)" = "$1" ]; }
+
+# We may be running from the project's own copy of the skill; nothing to copy then.
+is_project_copy() { [ "$SKILL_DIR" = "$root/$DEST" ]; }
+
+copy_skill() {
+  is_project_copy && return 0
+  mkdir -p "$DEST"
+  cp "$SKILL_DIR/SKILL.md" "$DEST/"
+  rm -rf "$DEST/templates" "$DEST/bin"
+  cp -R "$SKILL_DIR/templates" "$SKILL_DIR/bin" "$DEST/"
+}
+
 # Pull teammates' decisions first.
 if has_upstream; then
   git pull --ff-only --quiet >/dev/null 2>&1 || true
 fi
 
 if [ -d decisions ]; then
+  # Refresh the project's copy of the skill when ours is newer.
+  mine=$(skill_version "$SKILL_DIR")
+  theirs=$(skill_version "$DEST")
+  if ! is_project_copy && [ -n "$mine" ] && [ -n "$theirs" ] && newer "$mine" "$theirs"; then
+    copy_skill
+    git add -- "$DEST" >/dev/null 2>&1
+    if git commit --quiet -m "decisions: update skill to v$mine" -- "$DEST" >/dev/null 2>&1; then
+      has_upstream && git push --quiet >/dev/null 2>&1
+      say "Design-decisions skill in this project updated to v$mine." "The project's copy of the design-decisions skill was updated from v$theirs to v$mine."
+      exit 0
+    fi
+  fi
   say "" "This project keeps a design decision log in decisions/. Follow the design-decisions skill."
   exit 0
 fi
 
 name=$(basename "$root")
-mkdir -p decisions/assets .claude/skills/design-decisions
+mkdir -p decisions/assets
 sed "s/<Project name>/$name/" "$SKILL_DIR/templates/index.md" > decisions/README.md
 touch decisions/assets/.gitkeep
 
 # Ship the skill with the project so teammates' Claude picks it up on clone.
-cp "$SKILL_DIR/SKILL.md" .claude/skills/design-decisions/
-cp -R "$SKILL_DIR/templates" .claude/skills/design-decisions/
+copy_skill
 
-paths="decisions .claude/skills/design-decisions"
+paths="decisions $DEST"
 
 # Point CLAUDE.md at the log, but never touch a CLAUDE.md with uncommitted edits.
 line='Design decisions: read decisions/README.md before design work and follow the design-decisions skill.'
