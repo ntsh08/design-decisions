@@ -8,9 +8,12 @@ Engineers have Architecture Decision Records (ADRs). Designers usually have a Fi
 
 - **Logs decisions as you work.** When you settle a flow, rename something, set a visual rule, or cut a feature, Claude proposes a short entry. You approve it with one word.
 - **Asks when unsure.** Tentative changes ("let's try…") or missing reasons get a question, not a guess. Small tweaks are skipped.
-- **Never invents the why.** Reasons and evidence come from you. If you don't give one, the entry says `Not stated`.
+- **Never invents the why, and never credits itself.** Reasons come from you, in your words. If Claude proposed an option and you picked it, it asks why you picked it. No reason given → the entry says `Not stated`.
+- **Catches the decisions you'd miss.** Picking one of several options counts as a decision, and a sweep at the end of a work session lists anything not yet logged.
+- **Asks questions you can answer later.** Each one names the screen and element in plain words, not internal labels.
+- **Keeps entries current.** When a screen changes, the entries that cover it are updated in the same commit.
 - **Warns before undoing a decision.** If someone asks for a change that goes against a logged decision, Claude points it out first.
-- **Keeps history.** Old decisions are marked *Superseded*, never deleted.
+- **Your choice of history.** Replaced decisions are either kept as *Superseded* or deleted for a clean log (git still has them).
 - **One log per project,** in a `decisions/` folder at the project root, shared through git.
 
 ## What an entry looks like
@@ -18,9 +21,12 @@ Engineers have Architecture Decision Records (ADRs). Designers usually have a Fi
 ```md
 # One Saved list instead of Favorites + Bookmarks
 
-Status: Active          Type: IA
-Date: 2026-03-12        Decided by: Priya
-Screens: Home, Saved tab, Item sheet
+- **Status:** Active
+- **Type:** IA
+- **Decided by:** Priya
+- **Screens:** Home, Saved tab, Item sheet
+- **Link:** ../screens/saved.png
+- **Supersedes:** none
 
 ## Problem
 Users had two ways to keep an item and couldn't tell them apart.
@@ -29,7 +35,7 @@ Users had two ways to keep an item and couldn't tell them apart.
 One "Saved" list with filter chips.
 
 ## Why
-Two save actions = two mental models for one intent.
+Priya: two save actions meant two mental models for one intent.
 
 ## Evidence
 5 of 6 usability sessions hesitated between the two.   Confidence: High
@@ -44,7 +50,7 @@ Two save actions = two mental models for one intent.
 Users ask for named collections.
 ```
 
-Full template: [`templates/entry.md`](templates/entry.md). Each project also gets an index, `decisions/README.md`, with one row per decision.
+Full template: [`templates/entry.md`](templates/entry.md). Each project also gets an index, `decisions/README.md`, grouped by area, with one row per decision.
 
 ## How it decides what to log
 
@@ -58,7 +64,10 @@ Tie-breaker: *if someone new undid this in 3 months, would it hurt?* Yes → log
 
 Claude finishes the task first, then asks in one line at the end of its reply:
 
-> **Log decision?** "One Saved list instead of Favorites + Bookmarks" (IA). Why: two save actions confused users. Yes / edit / skip
+> **Log decision?**
+> 1. Saved tab: one "Saved" list instead of Favorites + Bookmarks (IA). Why did you merge them?
+>
+> Yes / edit / skip
 
 ## Install
 
@@ -116,14 +125,14 @@ Zip this folder and upload it under **Settings → Capabilities → Skills**. Th
 
 ## Working with teammates
 
-Because the hook copies the skill into each project, **anyone who clones the repo gets it.** Their Claude Code reads the same log and follows the same rules, with no install needed. Entries are named by date (`2026-03-12-one-saved-list.md`), so two people never pick the same file name.
+Because the hook copies the skill into each project, **anyone who clones the repo gets it.** Their Claude Code reads the same log and follows the same rules, with no install needed. Entries are named with a short slug (`one-saved-list.md`); if a slug is taken, Claude makes it more specific.
 
 ## Updating
 
 - **Installed with `npx skills add -g`:** run `npx skills update -g`.
 - **Installed with `git clone`:** run `git pull` inside `~/.claude/skills/design-decisions`.
 - **Copy inside a project:** if you also use the hook, it refreshes the project's copy automatically when your installed version is newer, and teammates get it on their next pull. Otherwise rerun `bin/setup.sh <folder>` from the newer copy.
-- **If someone has it installed globally,** Claude Code prefers that copy over the one in the project. Both work; the global one decides the rules. Each entry records the skill version that wrote it (`Skill version:`), so mixed versions stay readable.
+- **If someone has it installed globally,** Claude Code prefers that copy over the one in the project. Both work; the global one decides the rules.
 
 ## Credits
 

@@ -73,9 +73,8 @@ if [ -d decisions ]; then
 fi
 
 name=$(basename "$root")
-mkdir -p decisions/assets
+mkdir -p decisions
 sed "s/<Project name>/$name/" "$SKILL_DIR/templates/index.md" > decisions/README.md
-touch decisions/assets/.gitkeep
 
 # Ship the skill with the project so teammates' Claude picks it up on clone.
 copy_skill

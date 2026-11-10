@@ -1,11 +1,11 @@
 # <Decision title>
 
-Status: Active          Type: <Flow | IA | Terminology | Visual | Interaction | Content | Scope>
-Date: YYYY-MM-DD        Decided by: <name>
-Skill version: <x.y.z>
-Screens: <screens affected>
-Link: <prototype / Figma / commit>
-Supersedes: <old file, or none>
+- **Status:** Active
+- **Type:** <Flow | IA | Terminology | Visual | Interaction | Content | Scope>
+- **Decided by:** <name>
+- **Screens:** <screens affected>
+- **Link:** <file in the repo, or a URL the user gave>
+- **Supersedes:** <old file, or none>
 
 ## Problem
 <What wasn't working, in one or two sentences.>
@@ -14,18 +14,16 @@ Supersedes: <old file, or none>
 <What was chosen.>
 
 ## Why
-<The reasoning, in the person's words. "Not stated" if unknown. Never guess.>
+<Name>: <their reasoning, in their words. "Not stated" if unknown. Never the agent's reasoning.>
 
 ## Evidence
-<User talk, test, data, or "designer judgement".>   Confidence: <High | Medium | Low>
+<Research file, interview, test, data, or "Designer judgement".>   Confidence: <High | Medium | Low>
 
 ## Rejected options
-- <Option> → <why not>
+- <Option> → <why not, without saying who proposed it>
 
 ## Guardrails for the next designer
 - <What not to undo or add.>
 
 ## Revisit when
 <The signal that should reopen this.>
-
-Before/After: assets/<file>-before.png · assets/<file>-after.png
