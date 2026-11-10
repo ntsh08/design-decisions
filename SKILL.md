@@ -2,7 +2,7 @@
 name: design-decisions
 description: Keep a shared log of UX/UI design decisions in a decisions/ folder so the next designer knows why things are the way they are. Use when the project has a decisions/ folder, when the user makes or reverses a design decision (flow, information architecture, naming, visual rule, interaction, content, removing a feature), picks one option out of several you showed, asks "why is it like this?", hands a project over, wraps up a work session, or says "log this". Proposes entries and asks when unsure; never invents the reasoning and never credits the agent.
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Design decisions
@@ -30,21 +30,22 @@ Each project keeps its own log in `decisions/` at the project root (next to its 
 
 ## Setup
 
-`bin/setup.sh` does the whole setup: it creates `decisions/` with an index named after the project, copies this skill into the project's `.claude/skills/design-decisions/` (so teammates' Claude gets it on clone, even without installing it), adds a pointer line to `CLAUDE.md`, commits, and pushes. If the project's copy of the skill is older than this one, it refreshes it.
+Projects don't get a log automatically. Create one **only when the user asks** ("set up a decision log", "log this decision" in a project with no `decisions/`). If you notice a decision in a project without a log, don't create one; at most mention once that they can ask for it.
 
-Run it when the user asks to set up a log, or when you start design work in a project that has no `decisions/` folder:
+`bin/setup.sh --create` does the setup: it creates `decisions/` with an index named after the project, copies this skill into the project's `.claude/skills/design-decisions/` (so teammates' Claude gets it on clone, even without installing it), adds a pointer line to `CLAUDE.md`, commits, and pushes.
 
 ```
-bin/setup.sh "$(git rev-parse --show-toplevel)"
+bin/setup.sh --create "$(git rev-parse --show-toplevel)"
 ```
 
 Use the script's absolute path inside this skill's folder. If the project isn't a git repo, create `decisions/README.md` (from `templates/index.md`) by hand and tell the user it isn't shared yet.
 
-An optional SessionStart hook can run the same script at the start of every session, which also pulls teammates' new decisions. A project opts out by containing a `.no-decisions` file.
+Without `--create`, the script only syncs projects that already have a log: it pulls teammates' new decisions and refreshes the project's copy of the skill when this one is newer. That's what the optional SessionStart hook runs, so it never creates a log on its own. A project can also opt out entirely with a `.no-decisions` file.
 
 ## Before you work
 
 - If it's a git repo, `git pull` first.
+- If the project has no `decisions/` folder, skip this section and don't log anything unless the user asks.
 - Read `decisions/README.md`. Before changing a screen, read the Active entries that list that screen.
 - If a requested change goes against an Active decision or its guardrails, say so **before** doing it:
   > This goes against "One Saved list". Its guardrail says no second save action. Replace that decision, or keep it?

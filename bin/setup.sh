@@ -1,14 +1,19 @@
 #!/bin/bash
-# Sets up a design decision log in the current git project and keeps it synced.
+# Keeps design decision logs synced, and creates one when asked.
 # Runs from a Claude Code SessionStart hook or by hand; safe to run repeatedly.
 #
-# Usage: setup.sh <folder>[:<folder>...]
+# Usage: setup.sh [--create] <folder>[:<folder>...]
 # Only repos inside the given folders are touched (or DECISIONS_ROOTS if no
-# argument). With neither, it does nothing.
+# folder). With neither, it does nothing.
+# Without --create it only syncs projects that already have decisions/
+# (pull, refresh the skill copy); it never creates a log on its own.
+# With --create (when the user asks for a log) it sets one up.
 # Opt out per project with a .no-decisions file at the repo root.
 
 set -u
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+CREATE=
+if [ "${1:-}" = "--create" ]; then CREATE=1; shift; fi
 ROOTS="${1:-${DECISIONS_ROOTS:-}}"
 [ -n "$ROOTS" ] || exit 0
 
@@ -71,6 +76,9 @@ if [ -d decisions ]; then
   say "" "This project keeps a design decision log in decisions/. Follow the design-decisions skill."
   exit 0
 fi
+
+# No log here. Only create one when the user asked for it.
+[ -n "$CREATE" ] || exit 0
 
 name=$(basename "$root")
 mkdir -p decisions

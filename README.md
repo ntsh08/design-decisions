@@ -14,7 +14,7 @@ Engineers have Architecture Decision Records (ADRs). Designers usually have a Fi
 - **Keeps entries current.** When a screen changes, the entries that cover it are updated in the same commit.
 - **Warns before undoing a decision.** If someone asks for a change that goes against a logged decision, Claude points it out first.
 - **Your choice of history.** Replaced decisions are either kept as *Superseded* or deleted for a clean log (git still has them).
-- **One log per project,** in a `decisions/` folder at the project root, shared through git.
+- **Only where you want it.** A project gets a `decisions/` folder only when you ask for one. It lives at the project root and is shared through git.
 
 ## What an entry looks like
 
@@ -87,7 +87,7 @@ git clone https://github.com/ntsh08/design-decisions ~/.claude/skills/design-dec
 
 Then, in each project, say "set up a decision log" once and Claude creates `decisions/`, shares the skill with the repo, and pushes.
 
-### Optional: set up every project automatically
+### Optional: keep logs synced automatically
 
 Add a SessionStart hook to `~/.claude/settings.json`. Replace `~/projects` with the folder that holds your projects (separate several with `:`):
 
@@ -109,15 +109,12 @@ Add a SessionStart hook to `~/.claude/settings.json`. Replace `~/projects` with 
 }
 ```
 
-Then, whenever a session starts in a git repo inside that folder, the hook:
+Then, whenever a session starts in a git repo inside that folder that already has a `decisions/` log, the hook:
 
 1. Pulls, so teammates' new decisions are there.
-2. If the project has no log yet: creates `decisions/`, copies the skill into `.claude/skills/design-decisions/`, and adds one pointer line to `CLAUDE.md` (skipped if `CLAUDE.md` has uncommitted edits).
-3. Commits only those files and pushes, if the branch has a remote.
+2. Refreshes the project's copy of the skill if your installed version is newer, then commits and pushes that.
 
-Repos outside the folder are never touched. To keep one project out, add an empty `.no-decisions` file at its root.
-
-> Heads-up: the first session in each existing repo will push a commit. If a repo auto-deploys on push, that triggers a deploy.
+It never creates a log. Projects without `decisions/` are left alone until you ask Claude to set one up. Repos outside the folder are never touched, and an empty `.no-decisions` file keeps a project out completely.
 
 ### Claude apps (web, desktop chat, mobile)
 
@@ -125,7 +122,7 @@ Zip this folder and upload it under **Settings → Capabilities → Skills**. Th
 
 ## Working with teammates
 
-Because the hook copies the skill into each project, **anyone who clones the repo gets it.** Their Claude Code reads the same log and follows the same rules, with no install needed. Entries are named with a short slug (`one-saved-list.md`); if a slug is taken, Claude makes it more specific.
+Because setup copies the skill into the project, **anyone who clones the repo gets it.** Their Claude Code reads the same log and follows the same rules, with no install needed. Entries are named with a short slug (`one-saved-list.md`); if a slug is taken, Claude makes it more specific.
 
 ## Updating
 
